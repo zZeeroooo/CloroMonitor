@@ -34,12 +34,17 @@ import com.example.cloromonitor.ui.screen.PuntosScreen
 import com.example.cloromonitor.ui.screen.ResumenScreen
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.Add
+import com.example.cloromonitor.ui.screen.ControlResumenScreen
+import com.example.cloromonitor.ui.screen.RegistroControlScreen
+import com.example.cloromonitor.ui.viewmodel.ControlViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val viewModel: MainViewModel = viewModel()
+    val controlViewModel: ControlViewModel = viewModel()
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -52,6 +57,8 @@ fun AppNavigation() {
         AppRoutes.RESUMEN -> "Resumen"
         AppRoutes.PUNTOS -> "Puntos de medición"
         AppRoutes.ALERTAS -> "Alertas"
+        AppRoutes.REGISTRO -> "Registrar control"
+        AppRoutes.CONTROL_RESUMEN -> "Control registrado"
         else -> "CloroMonitor"
     }
 
@@ -94,6 +101,15 @@ fun AppNavigation() {
                     },
                     icon = { Icon(Icons.Default.Warning, contentDescription = null) },
                     label = { Text("Alertas") }
+                )
+                NavigationDrawerItem(
+                    selected = currentRoute == AppRoutes.REGISTRO,
+                    onClick = {
+                        irA(AppRoutes.REGISTRO)
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    label = { Text("Registrar control") }
                 )
             }
         }
@@ -141,6 +157,22 @@ fun AppNavigation() {
                 composable(AppRoutes.RESUMEN) { ResumenScreen(viewModel) }
                 composable(AppRoutes.PUNTOS) { PuntosScreen(viewModel) }
                 composable(AppRoutes.ALERTAS) { AlertasScreen(viewModel) }
+                composable(AppRoutes.REGISTRO) {
+                    RegistroControlScreen(
+                        controlViewModel = controlViewModel,
+                        mainViewModel = viewModel,
+                        onRegistrar = { navController.navigate(AppRoutes.CONTROL_RESUMEN) }
+                    )
+                }
+                composable(AppRoutes.CONTROL_RESUMEN) {
+                    ControlResumenScreen(
+                        controlViewModel = controlViewModel,
+                        onVolver = {
+                            controlViewModel.limpiarFormulario()
+                            navController.popBackStack(AppRoutes.RESUMEN, false)
+                        }
+                    )
+                }
             }
         }
     }
