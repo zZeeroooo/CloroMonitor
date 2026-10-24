@@ -1,5 +1,6 @@
 package com.example.cloromonitor.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -93,15 +94,19 @@ fun RegistroControlScreen(
             Text(text = "Se aplicó una acción correctiva")
         }
 
-        OutlinedTextField(
-            value = estado.observacion,
-            onValueChange = controlViewModel::onObservacionChange,
-            label = { Text("Observación") },
-            minLines = 3,
-            isError = errores.observacion != null,
-            supportingText = { errores.observacion?.let { Text(it) } },
-            modifier = Modifier.fillMaxWidth()
-        )
+        AnimatedVisibility(visible = estado.accionCorrectiva) {
+            OutlinedTextField(
+                value = estado.observacion,
+                onValueChange = controlViewModel::onObservacionChange,
+                label = { Text("Observación") },
+                minLines = 3,
+                isError = errores.observacion != null,
+                supportingText = { errores.observacion?.let { Text(it) } },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
