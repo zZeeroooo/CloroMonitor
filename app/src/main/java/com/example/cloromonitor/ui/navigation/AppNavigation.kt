@@ -1,5 +1,9 @@
 package com.example.cloromonitor.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -152,7 +156,11 @@ fun AppNavigation() {
             NavHost(
                 navController = navController,
                 startDestination = AppRoutes.RESUMEN,
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(paddingValues),
+                enterTransition = { fadeIn(tween(300)) + slideInHorizontally(tween(300)) { it / 6 } },
+                exitTransition = { fadeOut(tween(200)) },
+                popEnterTransition = { fadeIn(tween(300)) },
+                popExitTransition = { fadeOut(tween(200)) }
             ) {
                 composable(AppRoutes.RESUMEN) { ResumenScreen(viewModel) }
                 composable(AppRoutes.PUNTOS) { PuntosScreen(viewModel) }
