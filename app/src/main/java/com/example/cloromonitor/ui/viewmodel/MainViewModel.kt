@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.cloromonitor.data.model.EstadoCloro
+import com.example.cloromonitor.util.NotificacionHelper
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -45,16 +47,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
         val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
         viewModelScope.launch {
-            repositorio.registrar(
-                PuntoMedicion(
-                    granja = granja,
-                    punto = punto,
-                    nivelCloro = nivelCloro,
-                    actualizado = fecha,
-                    accionCorrectiva = accionCorrectiva,
-                    observacion = observacion.trim()
-                )
+            val nuevo = PuntoMedicion(
+                granja = granja,
+                punto = punto,
+                nivelCloro = nivelCloro,
+                actualizado = fecha,
+                accionCorrectiva = accionCorrectiva,
+                observacion = observacion.trim()
             )
-        }
-    }
+            repositorio.registrar(nuevo)
+            if (nuevo.estado != EstadoCloro.NORMAL) {
+                NotificacionHelper.mostrarAlerta(getApplication<Application>(), nuevo)
+            }
+        }}
 }
