@@ -1,5 +1,7 @@
 package com.example.cloromonitor.data.model
 
+import androidx.annotation.StringRes
+
 data class ControlUiState(
     val punto: String = "",
     val nivelCloro: String = "",
@@ -10,7 +12,7 @@ data class ControlUiState(
 )
 
 data class ControlErrores(
-    val punto: String? = null,
-    val nivelCloro: String? = null,
-    val observacion: String? = null
+    @StringRes val punto: Int? = null,
+    @StringRes val nivelCloro: Int? = null,
+    @StringRes val observacion: Int? = null
 )

@@ -1,6 +1,7 @@
 package com.example.cloromonitor.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.cloromonitor.R
 import com.example.cloromonitor.data.model.ControlErrores
 import com.example.cloromonitor.data.model.ControlUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,17 +46,17 @@ class ControlViewModel : ViewModel() {
         val estado = _uiState.value
         val nivel = estado.nivelCloro.replace(',', '.').toDoubleOrNull()
 
-        val errorPunto = if (estado.punto.isBlank()) "Selecciona un punto de medición" else null
+        val errorPunto = if (estado.punto.isBlank()) R.string.error_seleccionar_punto else null
 
         val errorNivel = when {
-            estado.nivelCloro.isBlank() -> "Ingresa el nivel de cloro"
-            nivel == null -> "Ingresa un número válido"
-            nivel < 0.0 || nivel > 5.0 -> "El nivel debe estar entre 0 y 5 ppm"
+            estado.nivelCloro.isBlank() -> R.string.error_nivel_vacio
+            nivel == null -> R.string.error_numero_invalido
+            nivel < 0.0 || nivel > 5.0 -> R.string.error_nivel_rango
             else -> null
         }
 
         val errorObservacion = if (estado.accionCorrectiva && estado.observacion.trim().length < 10) {
-            "Describe la acción realizada (mínimo 10 caracteres)"
+            R.string.error_observacion_corta
         } else null
 
         _errores.value = ControlErrores(

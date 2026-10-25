@@ -1,3 +1,85 @@
 <resources>
     <string name="app_name">CloroMonitor</string>
+
+    <!-- Estados -->
+    <string name="estado_normal">Normal</string>
+    <string name="estado_advertencia">Advertencia</string>
+    <string name="estado_critico">Crítico</string>
+
+    <!-- Historial -->
+    <string name="historial_titulo">Historial de mediciones</string>
+    <string name="historial_vacio">Aún no hay mediciones registradas</string>
+    <string name="historial_cloro">Cloro libre: %1$s ppm</string>
+    <string name="historial_estado">Estado: %1$s</string>
+    <string name="historial_fecha">Fecha: %1$s</string>
+    <string name="historial_accion">Acción correctiva: %1$s</string>
+
+    <!-- Puntos -->
+    <string name="puntos_titulo">Puntos de medición</string>
+    <string name="puntos_cloro">Cloro libre: %1$s ppm</string>
+    <string name="puntos_estado">Estado: %1$s</string>
+    <string name="puntos_actualizado">Actualizado: %1$s</string>
+
+    <!-- Alertas -->
+    <string name="alertas_titulo">Alertas activas</string>
+    <string name="alertas_vacio">No hay alertas activas</string>
+    <string name="alertas_encabezado">%1$s: %2$s - %3$s</string>
+    <string name="alertas_cloro">Cloro libre: %1$s ppm</string>
+    <string name="alertas_actualizado">Actualizado: %1$s</string>
+    <!-- Resumen -->
+    <string name="resumen_titulo">Resumen de cloro</string>
+    <string name="resumen_logo">Logo CloroMonitor</string>
+    <string name="resumen_normales">Normales</string>
+    <string name="resumen_advertencia">En advertencia</string>
+    <string name="resumen_criticos">Críticos</string>
+    <plurals name="resumen_cantidad_puntos">
+        <item quantity="one">%1$d punto</item>
+        <item quantity="other">%1$d puntos</item>
+    </plurals>
+
+    <!-- Resumen del control -->
+    <string name="control_resumen_titulo">Control registrado</string>
+    <string name="control_resumen_punto">Punto: %1$s</string>
+    <string name="control_resumen_cloro">Cloro libre: %1$s ppm</string>
+    <string name="control_resumen_accion">Acción correctiva: %1$s</string>
+    <string name="control_resumen_observacion">Observación: %1$s</string>
+    <string name="control_resumen_sin_observaciones">Sin observaciones</string>
+    <string name="control_resumen_ubicacion">Ubicación: %1$.5f, %2$.5f</string>
+    <string name="control_resumen_sin_ubicacion">Ubicación: no registrada</string>
+    <string name="control_resumen_volver">Volver al resumen</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+
+    <!-- Errores compartidos -->
+    <string name="error_icono">Error</string>
+    <string name="error_minimo_3">Mínimo 3 caracteres</string>
+    <string name="error_numero_invalido">Ingresa un número válido</string>
+    <string name="error_nivel_rango">El nivel debe estar entre 0 y 5 ppm</string>
+
+    <!-- Agregar punto -->
+    <string name="nuevo_punto_titulo">Agregar punto de medición</string>
+    <string name="nuevo_punto_granja">Granja</string>
+    <string name="nuevo_punto_nombre">Nombre del punto</string>
+    <string name="nuevo_punto_nivel">Nivel inicial de cloro (ppm)</string>
+    <string name="nuevo_punto_guardar">Guardar punto</string>
+    <string name="error_granja_vacia">Ingresa el nombre de la granja</string>
+    <string name="error_punto_vacio">Ingresa el nombre del punto</string>
+    <string name="error_punto_duplicado">Este punto ya existe en esa granja</string>
+    <string name="error_nivel_inicial_vacio">Ingresa el nivel inicial de cloro</string>
+    <!-- Registrar control -->
+    <string name="registro_titulo">Registrar control</string>
+    <string name="registro_punto">Punto de medición</string>
+    <string name="registro_nivel">Nivel de cloro libre (ppm)</string>
+    <string name="registro_accion">Se aplicó una acción correctiva</string>
+    <string name="registro_observacion">Observación</string>
+    <string name="registro_obtener_ubicacion">Obtener ubicación</string>
+    <string name="registro_ubicacion_obtenida">Ubicación obtenida ✓</string>
+    <string name="registro_coordenadas">Lat: %1$.5f   Lon: %2$.5f</string>
+    <string name="registro_registrar">Registrar control</string>
+    <string name="error_seleccionar_punto">Selecciona un punto de medición</string>
+    <string name="error_nivel_vacio">Ingresa el nivel de cloro</string>
+    <string name="error_observacion_corta">Describe la acción realizada (mínimo 10 caracteres)</string>
+    <string name="error_ubicacion_no_obtenida">No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo.</string>
+    <string name="error_permiso_ubicacion">Permiso de ubicación denegado</string>
+
 </resources>

@@ -26,10 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.cloromonitor.R
 import com.example.cloromonitor.ui.viewmodel.ControlViewModel
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
 import com.example.cloromonitor.util.UbicacionHelper
@@ -60,8 +62,8 @@ fun RegistroControlScreen(
         }
     }
 
-    // Ubicación GPS
-    var mensajeUbicacion by remember { mutableStateOf<String?>(null) }
+    // Ubicación GPS: guardamos el id del texto del mensaje, no el texto
+    var mensajeUbicacion by remember { mutableStateOf<Int?>(null) }
 
     val obtenerUbicacion = {
         UbicacionHelper.obtenerUbicacion(context) { location ->
@@ -69,7 +71,7 @@ fun RegistroControlScreen(
                 controlViewModel.onUbicacionChange(location.latitude, location.longitude)
                 mensajeUbicacion = null
             } else {
-                mensajeUbicacion = "No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo."
+                mensajeUbicacion = R.string.error_ubicacion_no_obtenida
             }
         }
     }
@@ -80,7 +82,7 @@ fun RegistroControlScreen(
         if (permisos.values.any { it }) {
             obtenerUbicacion()
         } else {
-            mensajeUbicacion = "Permiso de ubicación denegado"
+            mensajeUbicacion = R.string.error_permiso_ubicacion
         }
     }
 
@@ -91,13 +93,13 @@ fun RegistroControlScreen(
             .padding(24.dp)
     ) {
         Text(
-            text = "Registrar control",
+            text = stringResource(R.string.registro_titulo),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Punto de medición",
+            text = stringResource(R.string.registro_punto),
             style = MaterialTheme.typography.titleMedium
         )
         puntos.forEach { punto ->
@@ -115,16 +117,16 @@ fun RegistroControlScreen(
                 Text(text = nombre)
             }
         }
-        errores.punto?.let {
+        errores.punto?.let { idError ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Default.Error,
-                    contentDescription = "Error",
+                    contentDescription = stringResource(R.string.error_icono),
                     tint = MaterialTheme.colorScheme.error
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = it,
+                    text = stringResource(idError),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -136,21 +138,21 @@ fun RegistroControlScreen(
         OutlinedTextField(
             value = estado.nivelCloro,
             onValueChange = controlViewModel::onNivelCloroChange,
-            label = { Text("Nivel de cloro libre (ppm)") },
+            label = { Text(stringResource(R.string.registro_nivel)) },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.WaterDrop, contentDescription = null) },
             trailingIcon = {
                 if (errores.nivelCloro != null) {
                     Icon(
                         Icons.Default.Error,
-                        contentDescription = "Error",
+                        contentDescription = stringResource(R.string.error_icono),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = errores.nivelCloro != null,
-            supportingText = { errores.nivelCloro?.let { Text(it) } },
+            supportingText = { errores.nivelCloro?.let { Text(stringResource(it)) } },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -166,27 +168,27 @@ fun RegistroControlScreen(
                 checked = estado.accionCorrectiva,
                 onCheckedChange = controlViewModel::onAccionCorrectivaChange
             )
-            Text(text = "Se aplicó una acción correctiva")
+            Text(text = stringResource(R.string.registro_accion))
         }
 
         AnimatedVisibility(visible = estado.accionCorrectiva) {
             OutlinedTextField(
                 value = estado.observacion,
                 onValueChange = controlViewModel::onObservacionChange,
-                label = { Text("Observación") },
+                label = { Text(stringResource(R.string.registro_observacion)) },
                 minLines = 3,
                 leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
                 trailingIcon = {
                     if (errores.observacion != null) {
                         Icon(
                             Icons.Default.Error,
-                            contentDescription = "Error",
+                            contentDescription = stringResource(R.string.error_icono),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
                 },
                 isError = errores.observacion != null,
-                supportingText = { errores.observacion?.let { Text(it) } },
+                supportingText = { errores.observacion?.let { Text(stringResource(it)) } },
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -217,14 +219,19 @@ fun RegistroControlScreen(
         ) {
             Icon(Icons.Default.LocationOn, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(if (estado.latitud == null) "Obtener ubicación" else "Ubicación obtenida ✓")
+            Text(
+                stringResource(
+                    if (estado.latitud == null) R.string.registro_obtener_ubicacion
+                    else R.string.registro_ubicacion_obtenida
+                )
+            )
         }
 
         estado.latitud?.let { lat ->
-            Text("Lat: %.5f   Lon: %.5f".format(lat, estado.longitud ?: 0.0))
+            Text(stringResource(R.string.registro_coordenadas, lat, estado.longitud ?: 0.0))
         }
-        mensajeUbicacion?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
+        mensajeUbicacion?.let { idMensaje ->
+            Text(stringResource(idMensaje), color = MaterialTheme.colorScheme.error)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -245,7 +252,7 @@ fun RegistroControlScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Registrar control")
+            Text(stringResource(R.string.registro_registrar))
         }
     }
 }

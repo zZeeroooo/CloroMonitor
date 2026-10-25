@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.cloromonitor.R
 import com.example.cloromonitor.data.model.EstadoCloro
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
 
@@ -25,7 +27,7 @@ fun PuntosScreen(viewModel: MainViewModel) {
             .padding(24.dp)
     ) {
         Text(
-            text = "Puntos de medición",
+            text = stringResource(R.string.puntos_titulo),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -51,9 +53,9 @@ fun PuntosScreen(viewModel: MainViewModel) {
                             text = "${punto.granja} - ${punto.punto}",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = "Cloro libre: ${punto.nivelCloro} ppm")
-                        Text(text = "Estado: ${punto.estado.etiqueta}")
-                        Text(text = "Actualizado: ${punto.actualizado}")
+                        Text(text = stringResource(R.string.puntos_cloro, punto.nivelCloro))
+                        Text(text = stringResource(R.string.puntos_estado, punto.estado.texto()))
+                        Text(text = stringResource(R.string.puntos_actualizado, punto.actualizado))
                     }
                 }
             }

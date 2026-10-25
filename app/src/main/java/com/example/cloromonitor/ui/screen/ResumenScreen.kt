@@ -8,6 +8,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,21 +65,21 @@ fun ResumenScreen(viewModel: MainViewModel = viewModel()) {
 private fun Encabezado() {
     Image(
         painter = painterResource(id = R.drawable.logo_cloro),
-        contentDescription = "Logo CloroMonitor",
+        contentDescription = stringResource(R.string.resumen_logo),
         modifier = Modifier.size(120.dp)
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = "Resumen de cloro",
+        text = stringResource(R.string.resumen_titulo),
         style = MaterialTheme.typography.headlineMedium
     )
 }
 
 @Composable
 private fun Tarjetas(normales: Int, advertencia: Int, criticos: Int) {
-    ResumenCard("Normales", normales)
-    ResumenCard("En advertencia", advertencia)
-    ResumenCard("Críticos", criticos)
+    ResumenCard(stringResource(R.string.resumen_normales), normales)
+    ResumenCard(stringResource(R.string.resumen_advertencia), advertencia)
+    ResumenCard(stringResource(R.string.resumen_criticos), criticos)
 }
 
 @Composable
@@ -89,7 +91,13 @@ private fun ResumenCard(titulo: String, cantidad: Int) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = titulo, style = MaterialTheme.typography.titleMedium)
-            Text(text = "$cantidad puntos")
+            Text(
+                text = pluralStringResource(
+                    R.plurals.resumen_cantidad_puntos,
+                    cantidad,
+                    cantidad
+                )
+            )
         }
     }
 }

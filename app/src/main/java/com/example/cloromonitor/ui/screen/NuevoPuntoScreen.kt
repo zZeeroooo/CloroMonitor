@@ -13,9 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.cloromonitor.R
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
 import com.example.cloromonitor.ui.viewmodel.NuevoPuntoViewModel
 
@@ -36,7 +38,7 @@ fun NuevoPuntoScreen(
             .padding(24.dp)
     ) {
         Text(
-            text = "Agregar punto de medición",
+            text = stringResource(R.string.nuevo_punto_titulo),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -44,61 +46,61 @@ fun NuevoPuntoScreen(
         OutlinedTextField(
             value = estado.granja,
             onValueChange = nuevoPuntoViewModel::onGranjaChange,
-            label = { Text("Granja") },
+            label = { Text(stringResource(R.string.nuevo_punto_granja)) },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.Agriculture, contentDescription = null) },
             trailingIcon = {
                 if (errores.granja != null) {
                     Icon(
                         Icons.Default.Error,
-                        contentDescription = "Error",
+                        contentDescription = stringResource(R.string.error_icono),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
             },
             isError = errores.granja != null,
-            supportingText = { errores.granja?.let { Text(it) } },
+            supportingText = { errores.granja?.let { Text(stringResource(it)) } },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = estado.punto,
             onValueChange = nuevoPuntoViewModel::onPuntoChange,
-            label = { Text("Nombre del punto") },
+            label = { Text(stringResource(R.string.nuevo_punto_nombre)) },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
             trailingIcon = {
                 if (errores.punto != null) {
                     Icon(
                         Icons.Default.Error,
-                        contentDescription = "Error",
+                        contentDescription = stringResource(R.string.error_icono),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
             },
             isError = errores.punto != null,
-            supportingText = { errores.punto?.let { Text(it) } },
+            supportingText = { errores.punto?.let { Text(stringResource(it)) } },
             modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = estado.nivelCloro,
             onValueChange = nuevoPuntoViewModel::onNivelCloroChange,
-            label = { Text("Nivel inicial de cloro (ppm)") },
+            label = { Text(stringResource(R.string.nuevo_punto_nivel)) },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.WaterDrop, contentDescription = null) },
             trailingIcon = {
                 if (errores.nivelCloro != null) {
                     Icon(
                         Icons.Default.Error,
-                        contentDescription = "Error",
+                        contentDescription = stringResource(R.string.error_icono),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = errores.nivelCloro != null,
-            supportingText = { errores.nivelCloro?.let { Text(it) } },
+            supportingText = { errores.nivelCloro?.let { Text(stringResource(it)) } },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -119,7 +121,7 @@ fun NuevoPuntoScreen(
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Guardar punto")
+            Text(stringResource(R.string.nuevo_punto_guardar))
         }
     }
 }

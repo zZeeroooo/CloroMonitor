@@ -1,6 +1,7 @@
 package com.example.cloromonitor.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.cloromonitor.R
 import com.example.cloromonitor.data.model.NuevoPuntoErrores
 import com.example.cloromonitor.data.model.NuevoPuntoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,23 +42,23 @@ class NuevoPuntoViewModel : ViewModel() {
         val nivel = estado.nivelCloro.replace(',', '.').toDoubleOrNull()
 
         val errorGranja = when {
-            granja.isEmpty() -> "Ingresa el nombre de la granja"
-            granja.length < 3 -> "Mínimo 3 caracteres"
+            granja.isEmpty() -> R.string.error_granja_vacia
+            granja.length < 3 -> R.string.error_minimo_3
             else -> null
         }
 
         val errorPunto = when {
-            punto.isEmpty() -> "Ingresa el nombre del punto"
-            punto.length < 3 -> "Mínimo 3 caracteres"
+            punto.isEmpty() -> R.string.error_punto_vacio
+            punto.length < 3 -> R.string.error_minimo_3
             existentes.any { it.equals("$granja - $punto", ignoreCase = true) } ->
-                "Este punto ya existe en esa granja"
+                R.string.error_punto_duplicado
             else -> null
         }
 
         val errorNivel = when {
-            estado.nivelCloro.isBlank() -> "Ingresa el nivel inicial de cloro"
-            nivel == null -> "Ingresa un número válido"
-            nivel < 0.0 || nivel > 5.0 -> "El nivel debe estar entre 0 y 5 ppm"
+            estado.nivelCloro.isBlank() -> R.string.error_nivel_inicial_vacio
+            nivel == null -> R.string.error_numero_invalido
+            nivel < 0.0 || nivel > 5.0 -> R.string.error_nivel_rango
             else -> null
         }
 

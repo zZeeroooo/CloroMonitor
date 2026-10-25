@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.cloromonitor.R
 import com.example.cloromonitor.data.model.EstadoCloro
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
 
@@ -23,13 +25,13 @@ fun HistorialScreen(viewModel: MainViewModel) {
             .padding(24.dp)
     ) {
         Text(
-            text = "Historial de mediciones",
+            text = stringResource(R.string.historial_titulo),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         if (historial.isEmpty()) {
-            Text(text = "Aún no hay mediciones registradas")
+            Text(text = stringResource(R.string.historial_vacio))
         } else {
             LazyColumn {
                 items(historial, key = { it.id }) { medicion ->
@@ -38,6 +40,8 @@ fun HistorialScreen(viewModel: MainViewModel) {
                         EstadoCloro.ADVERTENCIA -> Color(0xFFFFF3C4)
                         EstadoCloro.CRITICO -> Color(0xFFFFCDD2)
                     }
+
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -49,11 +53,16 @@ fun HistorialScreen(viewModel: MainViewModel) {
                                 text = "${medicion.granja} - ${medicion.punto}",
                                 style = MaterialTheme.typography.titleMedium
                             )
-                            Text(text = "Cloro libre: ${medicion.nivelCloro} ppm")
-                            Text(text = "Estado: ${medicion.estado.etiqueta}")
-                            Text(text = "Fecha: ${medicion.actualizado}")
+                            Text(text = stringResource(R.string.historial_cloro, medicion.nivelCloro))
+                            Text(text = stringResource(R.string.historial_fecha, medicion.actualizado))
+                            Text(text = stringResource(R.string.historial_fecha, medicion.actualizado))
                             if (medicion.accionCorrectiva) {
-                                Text(text = "Acción correctiva: ${medicion.observacion}")
+                                Text(
+                                    text = stringResource(
+                                        R.string.historial_accion,
+                                        medicion.observacion
+                                    )
+                                )
                             }
                         }
                     }

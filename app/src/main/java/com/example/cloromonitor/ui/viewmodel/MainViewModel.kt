@@ -29,9 +29,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // Última medición de cada punto
     val puntos: StateFlow<List<PuntoMedicion>> = historial
-        .map { lista -> lista.distinctBy { it.granja to it.punto } }
+        .map { lista ->
+            lista.distinctBy { it.granja to it.punto }
+                .sortedWith(compareBy({ it.granja }, { it.punto }))
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     init {
         viewModelScope.launch {
             repositorio.cargarDatosInicialesSiHaceFalta()
