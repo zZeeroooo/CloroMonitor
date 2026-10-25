@@ -1,29 +1,35 @@
 package com.example.cloromonitor.ui.screen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cloromonitor.ui.viewmodel.ControlViewModel
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
+import com.example.cloromonitor.util.UbicacionHelper
 
 @Composable
 fun RegistroControlScreen(
@@ -35,6 +41,8 @@ fun RegistroControlScreen(
     val errores by controlViewModel.errores.collectAsStateWithLifecycle()
     val puntos by mainViewModel.puntos.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // Permiso de notificaciones
     val lanzadorPermiso = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { }
@@ -46,6 +54,30 @@ fun RegistroControlScreen(
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             lanzadorPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // Ubicación GPS
+    var mensajeUbicacion by remember { mutableStateOf<String?>(null) }
+
+    val obtenerUbicacion = {
+        UbicacionHelper.obtenerUbicacion(context) { location ->
+            if (location != null) {
+                controlViewModel.onUbicacionChange(location.latitude, location.longitude)
+                mensajeUbicacion = null
+            } else {
+                mensajeUbicacion = "No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo."
+            }
+        }
+    }
+
+    val lanzadorUbicacion = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permisos ->
+        if (permisos.values.any { it }) {
+            obtenerUbicacion()
+        } else {
+            mensajeUbicacion = "Permiso de ubicación denegado"
         }
     }
 
@@ -128,7 +160,41 @@ fun RegistroControlScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
 
+        OutlinedButton(
+            onClick = {
+                val permitido =
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED ||
+                            ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                if (permitido) {
+                    obtenerUbicacion()
+                } else {
+                    lanzadorUbicacion.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.LocationOn, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(if (estado.latitud == null) "Obtener ubicación" else "Ubicación obtenida ✓")
+        }
+
+        estado.latitud?.let { lat ->
+            Text("Lat: %.5f   Lon: %.5f".format(lat, estado.longitud ?: 0.0))
+        }
+        mensajeUbicacion?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -139,7 +205,9 @@ fun RegistroControlScreen(
                         estado.punto,
                         estado.nivelCloro,
                         estado.accionCorrectiva,
-                        estado.observacion
+                        estado.observacion,
+                        estado.latitud,
+                        estado.longitud
                     )
                     onRegistrar()
                 }

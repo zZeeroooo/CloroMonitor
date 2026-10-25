@@ -45,13 +45,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         latitud: Double? = null,
         longitud: Double? = null
     ) {
-        val granja = puntos.value.firstOrNull { it.punto == punto }?.granja ?: return
+        val base = puntos.value.firstOrNull { "${it.granja} - ${it.punto}" == punto } ?: return
+        val granja = base.granja
+        val nombrePunto = base.punto
         val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
         val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
         viewModelScope.launch {
             val nuevo = PuntoMedicion(
                 granja = granja,
-                punto = punto,
+                punto = nombrePunto,
                 nivelCloro = nivelCloro,
                 actualizado = fecha,
                 accionCorrectiva = accionCorrectiva,
