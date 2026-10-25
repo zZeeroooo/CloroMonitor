@@ -39,6 +39,12 @@ fun ControlResumenScreen(
                     text = "Observación: " +
                             estado.observacion.ifBlank { "Sin observaciones" }
                 )
+                Text(
+                    text = if (estado.latitud != null && estado.longitud != null)
+                        "Ubicación: %.5f, %.5f".format(estado.latitud, estado.longitud)
+                    else
+                        "Ubicación: no registrada"
+                )
             }
         }
 

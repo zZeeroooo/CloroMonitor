@@ -59,7 +59,7 @@ private fun AlertaCard(punto: PuntoMedicion) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "${punto.estado}: ${punto.granja} - ${punto.punto}",
+                text = "${punto.estado.etiqueta}: ${punto.granja} - ${punto.punto}",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(text = "Cloro libre: ${punto.nivelCloro} ppm")

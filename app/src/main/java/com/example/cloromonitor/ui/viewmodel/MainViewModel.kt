@@ -37,6 +37,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repositorio.cargarDatosInicialesSiHaceFalta()
         }
     }
+
     fun registrarControl(
         punto: String,
         nivel: String,
@@ -65,5 +66,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (nuevo.estado != EstadoCloro.NORMAL) {
                 NotificacionHelper.mostrarAlerta(getApplication<Application>(), nuevo)
             }
-        }}
+        }
+    }
+
+    // Agrega un punto nuevo: se guarda como su primera medición
+    fun agregarPunto(granja: String, punto: String, nivel: String) {
+        val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
+        val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
+        viewModelScope.launch {
+            val nuevo = PuntoMedicion(
+                granja = granja.trim(),
+                punto = punto.trim(),
+                nivelCloro = nivelCloro,
+                actualizado = fecha
+            )
+            repositorio.registrar(nuevo)
+            if (nuevo.estado != EstadoCloro.NORMAL) {
+                NotificacionHelper.mostrarAlerta(getApplication<Application>(), nuevo)
+            }
+        }
+    }
 }
