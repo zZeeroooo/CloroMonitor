@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,6 +33,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         viewModelScope.launch {
             repositorio.cargarDatosInicialesSiHaceFalta()
+        }
+    }
+    fun registrarControl(
+        punto: String,
+        nivel: String,
+        accionCorrectiva: Boolean,
+        observacion: String
+    ) {
+        val granja = puntos.value.firstOrNull { it.punto == punto }?.granja ?: return
+        val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
+        val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
+        viewModelScope.launch {
+            repositorio.registrar(
+                PuntoMedicion(
+                    granja = granja,
+                    punto = punto,
+                    nivelCloro = nivelCloro,
+                    actualizado = fecha,
+                    accionCorrectiva = accionCorrectiva,
+                    observacion = observacion.trim()
+                )
+            )
         }
     }
 }

@@ -12,7 +12,9 @@ data class PuntoMedicion(
     val actualizado: String,     // "16-10-2026 09:30"
     val fotoUri: String? = null,
     val latitud: Double? = null,
-    val longitud: Double? = null
+    val longitud: Double? = null,
+    val accionCorrectiva: Boolean = false,
+    val observacion: String = ""
 ) {
     val estado: EstadoCloro
         get() = when {

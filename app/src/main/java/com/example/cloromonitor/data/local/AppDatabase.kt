@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.cloromonitor.data.model.PuntoMedicion
 
-@Database(entities = [PuntoMedicion::class], version = 1, exportSchema = false)
+@Database(entities = [PuntoMedicion::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun puntoDao(): PuntoDao
@@ -17,11 +17,12 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
+                INSTANCE ?:                 Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "cloromonitor.db"
-                ).build().also { INSTANCE = it }
+                ).fallbackToDestructiveMigration(true)
+                    .build().also { INSTANCE = it }
             }
     }
 }

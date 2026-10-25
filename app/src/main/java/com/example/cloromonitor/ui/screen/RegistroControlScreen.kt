@@ -112,7 +112,15 @@ fun RegistroControlScreen(
 
         Button(
             onClick = {
-                if (controlViewModel.validarFormulario()) onRegistrar()
+                if (controlViewModel.validarFormulario()) {
+                    mainViewModel.registrarControl(
+                        estado.punto,
+                        estado.nivelCloro,
+                        estado.accionCorrectiva,
+                        estado.observacion
+                    )
+                    onRegistrar()
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
