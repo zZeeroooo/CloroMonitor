@@ -12,7 +12,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -113,11 +116,19 @@ fun RegistroControlScreen(
             }
         }
         errores.punto?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = "Error",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -127,6 +138,16 @@ fun RegistroControlScreen(
             onValueChange = controlViewModel::onNivelCloroChange,
             label = { Text("Nivel de cloro libre (ppm)") },
             singleLine = true,
+            leadingIcon = { Icon(Icons.Default.WaterDrop, contentDescription = null) },
+            trailingIcon = {
+                if (errores.nivelCloro != null) {
+                    Icon(
+                        Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = errores.nivelCloro != null,
             supportingText = { errores.nivelCloro?.let { Text(it) } },
@@ -154,6 +175,16 @@ fun RegistroControlScreen(
                 onValueChange = controlViewModel::onObservacionChange,
                 label = { Text("Observación") },
                 minLines = 3,
+                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                trailingIcon = {
+                    if (errores.observacion != null) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 isError = errores.observacion != null,
                 supportingText = { errores.observacion?.let { Text(it) } },
                 modifier = Modifier.fillMaxWidth()
