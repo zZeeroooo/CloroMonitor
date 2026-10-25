@@ -41,7 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         punto: String,
         nivel: String,
         accionCorrectiva: Boolean,
-        observacion: String
+        observacion: String,
+        latitud: Double? = null,
+        longitud: Double? = null
     ) {
         val granja = puntos.value.firstOrNull { it.punto == punto }?.granja ?: return
         val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
@@ -53,7 +55,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 nivelCloro = nivelCloro,
                 actualizado = fecha,
                 accionCorrectiva = accionCorrectiva,
-                observacion = observacion.trim()
+                observacion = observacion.trim(),
+                latitud = latitud,
+                longitud = longitud
             )
             repositorio.registrar(nuevo)
             if (nuevo.estado != EstadoCloro.NORMAL) {

@@ -32,6 +32,10 @@ class ControlViewModel : ViewModel() {
         _uiState.update { it.copy(observacion = valor) }
     }
 
+    fun onUbicacionChange(latitud: Double?, longitud: Double?) {
+        _uiState.update { it.copy(latitud = latitud, longitud = longitud) }
+    }
+
     fun limpiarFormulario() {
         _uiState.value = ControlUiState()
         _errores.value = ControlErrores()
