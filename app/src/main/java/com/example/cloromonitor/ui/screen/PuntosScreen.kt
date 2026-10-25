@@ -52,7 +52,7 @@ fun PuntosScreen(viewModel: MainViewModel) {
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(text = "Cloro libre: ${punto.nivelCloro} ppm")
-                        Text(text = "Estado: ${punto.estado}")
+                        Text(text = "Estado: ${punto.estado.etiqueta}")
                         Text(text = "Actualizado: ${punto.actualizado}")
                     }
                 }

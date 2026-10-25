@@ -6,6 +6,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddLocation
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
@@ -34,14 +37,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.cloromonitor.ui.screen.AlertasScreen
-import com.example.cloromonitor.ui.screen.PuntosScreen
-import com.example.cloromonitor.ui.screen.ResumenScreen
-import com.example.cloromonitor.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.launch
-import androidx.compose.material.icons.filled.Add
 import com.example.cloromonitor.ui.screen.ControlResumenScreen
+import com.example.cloromonitor.ui.screen.HistorialScreen
+import com.example.cloromonitor.ui.screen.NuevoPuntoScreen
+import com.example.cloromonitor.ui.screen.PuntosScreen
 import com.example.cloromonitor.ui.screen.RegistroControlScreen
+import com.example.cloromonitor.ui.screen.ResumenScreen
 import com.example.cloromonitor.ui.viewmodel.ControlViewModel
+import com.example.cloromonitor.ui.viewmodel.MainViewModel
+import com.example.cloromonitor.ui.viewmodel.NuevoPuntoViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,11 +54,11 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val viewModel: MainViewModel = viewModel()
     val controlViewModel: ControlViewModel = viewModel()
+    val nuevoPuntoViewModel: NuevoPuntoViewModel = viewModel()
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    // NUEVO: estado del drawer y scope para abrir/cerrar
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -63,6 +68,8 @@ fun AppNavigation() {
         AppRoutes.ALERTAS -> "Alertas"
         AppRoutes.REGISTRO -> "Registrar control"
         AppRoutes.CONTROL_RESUMEN -> "Control registrado"
+        AppRoutes.HISTORIAL -> "Historial de mediciones"
+        AppRoutes.NUEVO_PUNTO -> "Agregar punto"
         else -> "CloroMonitor"
     }
 
@@ -70,7 +77,6 @@ fun AppNavigation() {
         navController.navigate(ruta) { launchSingleTop = true }
     }
 
-    // NUEVO: ModalNavigationDrawer envuelve todo el Scaffold
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -115,6 +121,24 @@ fun AppNavigation() {
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
                     label = { Text("Registrar control") }
                 )
+                NavigationDrawerItem(
+                    selected = currentRoute == AppRoutes.HISTORIAL,
+                    onClick = {
+                        irA(AppRoutes.HISTORIAL)
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(Icons.Default.History, contentDescription = null) },
+                    label = { Text("Historial") }
+                )
+                NavigationDrawerItem(
+                    selected = currentRoute == AppRoutes.NUEVO_PUNTO,
+                    onClick = {
+                        irA(AppRoutes.NUEVO_PUNTO)
+                        scope.launch { drawerState.close() }
+                    },
+                    icon = { Icon(Icons.Default.AddLocation, contentDescription = null) },
+                    label = { Text("Agregar punto") }
+                )
             }
         }
     ) {
@@ -122,7 +146,6 @@ fun AppNavigation() {
             topBar = {
                 TopAppBar(
                     title = { Text(titulo) },
-                    // NUEVO: botón ☰ que abre el drawer
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
@@ -179,6 +202,14 @@ fun AppNavigation() {
                             controlViewModel.limpiarFormulario()
                             navController.popBackStack(AppRoutes.RESUMEN, false)
                         }
+                    )
+                }
+                composable(AppRoutes.HISTORIAL) { HistorialScreen(viewModel) }
+                composable(AppRoutes.NUEVO_PUNTO) {
+                    NuevoPuntoScreen(
+                        nuevoPuntoViewModel = nuevoPuntoViewModel,
+                        mainViewModel = viewModel,
+                        onGuardado = { irA(AppRoutes.PUNTOS) }
                     )
                 }
             }

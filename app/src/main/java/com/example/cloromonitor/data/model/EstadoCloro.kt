@@ -1,3 +1,7 @@
 package com.example.cloromonitor.data.model
 
-enum class EstadoCloro { NORMAL, ADVERTENCIA, CRITICO }
+enum class EstadoCloro(val etiqueta: String) {
+    NORMAL("Normal"),
+    ADVERTENCIA("Advertencia"),
+    CRITICO("Crítico")
+}

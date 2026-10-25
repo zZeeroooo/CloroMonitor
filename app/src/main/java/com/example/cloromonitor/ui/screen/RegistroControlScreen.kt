@@ -1,21 +1,38 @@
 package com.example.cloromonitor.ui.screen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cloromonitor.ui.viewmodel.ControlViewModel
 import com.example.cloromonitor.ui.viewmodel.MainViewModel
+import com.example.cloromonitor.util.UbicacionHelper
 
 @Composable
 fun RegistroControlScreen(
@@ -26,6 +43,46 @@ fun RegistroControlScreen(
     val estado by controlViewModel.uiState.collectAsStateWithLifecycle()
     val errores by controlViewModel.errores.collectAsStateWithLifecycle()
     val puntos by mainViewModel.puntos.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    // Permiso de notificaciones
+    val lanzadorPermiso = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            lanzadorPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // Ubicación GPS
+    var mensajeUbicacion by remember { mutableStateOf<String?>(null) }
+
+    val obtenerUbicacion = {
+        UbicacionHelper.obtenerUbicacion(context) { location ->
+            if (location != null) {
+                controlViewModel.onUbicacionChange(location.latitude, location.longitude)
+                mensajeUbicacion = null
+            } else {
+                mensajeUbicacion = "No se pudo obtener la ubicación. Activa el GPS e intenta de nuevo."
+            }
+        }
+    }
+
+    val lanzadorUbicacion = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permisos ->
+        if (permisos.values.any { it }) {
+            obtenerUbicacion()
+        } else {
+            mensajeUbicacion = "Permiso de ubicación denegado"
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -59,11 +116,19 @@ fun RegistroControlScreen(
             }
         }
         errores.punto?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = "Error",
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -73,6 +138,16 @@ fun RegistroControlScreen(
             onValueChange = controlViewModel::onNivelCloroChange,
             label = { Text("Nivel de cloro libre (ppm)") },
             singleLine = true,
+            leadingIcon = { Icon(Icons.Default.WaterDrop, contentDescription = null) },
+            trailingIcon = {
+                if (errores.nivelCloro != null) {
+                    Icon(
+                        Icons.Default.Error,
+                        contentDescription = "Error",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = errores.nivelCloro != null,
             supportingText = { errores.nivelCloro?.let { Text(it) } },
@@ -100,19 +175,73 @@ fun RegistroControlScreen(
                 onValueChange = controlViewModel::onObservacionChange,
                 label = { Text("Observación") },
                 minLines = 3,
+                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                trailingIcon = {
+                    if (errores.observacion != null) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
                 isError = errores.observacion != null,
                 supportingText = { errores.observacion?.let { Text(it) } },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
 
+        OutlinedButton(
+            onClick = {
+                val permitido =
+                    ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED ||
+                            ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.ACCESS_COARSE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                if (permitido) {
+                    obtenerUbicacion()
+                } else {
+                    lanzadorUbicacion.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.LocationOn, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(if (estado.latitud == null) "Obtener ubicación" else "Ubicación obtenida ✓")
+        }
+
+        estado.latitud?.let { lat ->
+            Text("Lat: %.5f   Lon: %.5f".format(lat, estado.longitud ?: 0.0))
+        }
+        mensajeUbicacion?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if (controlViewModel.validarFormulario()) onRegistrar()
+                if (controlViewModel.validarFormulario()) {
+                    mainViewModel.registrarControl(
+                        estado.punto,
+                        estado.nivelCloro,
+                        estado.accionCorrectiva,
+                        estado.observacion,
+                        estado.latitud,
+                        estado.longitud
+                    )
+                    onRegistrar()
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {

@@ -4,7 +4,9 @@ data class ControlUiState(
     val punto: String = "",
     val nivelCloro: String = "",
     val accionCorrectiva: Boolean = false,
-    val observacion: String = ""
+    val observacion: String = "",
+    val latitud: Double? = null,
+    val longitud: Double? = null
 )
 
 data class ControlErrores(

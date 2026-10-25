@@ -1,20 +1,89 @@
 package com.example.cloromonitor.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.cloromonitor.data.local.AppDatabase
 import com.example.cloromonitor.data.model.PuntoMedicion
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.cloromonitor.data.repository.PuntoRepository
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.example.cloromonitor.data.model.EstadoCloro
+import com.example.cloromonitor.util.NotificacionHelper
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _puntos = MutableStateFlow(
-        listOf(
-            PuntoMedicion(1, "Granja Norte", "Galpón 1", 0.8, "16-10-2026 09:30"),
-            PuntoMedicion(2, "Granja Norte", "Galpón 2", 0.4, "16-10-2026 09:32"),
-            PuntoMedicion(3, "Granja Sur", "Estanque", 2.4, "16-10-2026 09:35"),
-            PuntoMedicion(4, "Granja Sur", "Galpón 3", 1.1, "16-10-2026 09:40")
-        )
+    private val repositorio = PuntoRepository(
+        AppDatabase.getInstance(application).puntoDao()
     )
-    val puntos: StateFlow<List<PuntoMedicion>> = _puntos.asStateFlow()
+
+    // Todas las mediciones guardadas (historial)
+    val historial: StateFlow<List<PuntoMedicion>> = repositorio.puntos
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Última medición de cada punto
+    val puntos: StateFlow<List<PuntoMedicion>> = historial
+        .map { lista -> lista.distinctBy { it.granja to it.punto } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    init {
+        viewModelScope.launch {
+            repositorio.cargarDatosInicialesSiHaceFalta()
+        }
+    }
+
+    fun registrarControl(
+        punto: String,
+        nivel: String,
+        accionCorrectiva: Boolean,
+        observacion: String,
+        latitud: Double? = null,
+        longitud: Double? = null
+    ) {
+        val base = puntos.value.firstOrNull { "${it.granja} - ${it.punto}" == punto } ?: return
+        val granja = base.granja
+        val nombrePunto = base.punto
+        val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
+        val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
+        viewModelScope.launch {
+            val nuevo = PuntoMedicion(
+                granja = granja,
+                punto = nombrePunto,
+                nivelCloro = nivelCloro,
+                actualizado = fecha,
+                accionCorrectiva = accionCorrectiva,
+                observacion = observacion.trim(),
+                latitud = latitud,
+                longitud = longitud
+            )
+            repositorio.registrar(nuevo)
+            if (nuevo.estado != EstadoCloro.NORMAL) {
+                NotificacionHelper.mostrarAlerta(getApplication<Application>(), nuevo)
+            }
+        }
+    }
+
+    // Agrega un punto nuevo: se guarda como su primera medición
+    fun agregarPunto(granja: String, punto: String, nivel: String) {
+        val nivelCloro = nivel.replace(',', '.').toDoubleOrNull() ?: return
+        val fecha = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault()).format(Date())
+        viewModelScope.launch {
+            val nuevo = PuntoMedicion(
+                granja = granja.trim(),
+                punto = punto.trim(),
+                nivelCloro = nivelCloro,
+                actualizado = fecha
+            )
+            repositorio.registrar(nuevo)
+            if (nuevo.estado != EstadoCloro.NORMAL) {
+                NotificacionHelper.mostrarAlerta(getApplication<Application>(), nuevo)
+            }
+        }
+    }
 }
